@@ -1,9 +1,8 @@
 #spring.application.name=shopping
-
 server:
-  port: 8080
+  port: 8081
   servlet:
-    context-path: /shopping
+    context-path: "/shopping"
 spring:
   application:
     name: shopping
@@ -15,3 +14,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+jwt:
+  signerKey: "8tT3Q7fEC1EzBFHyIY43ihghzzA/6M5H0XZ3NLcgXbgo+Cgvs0rCa5KIz5BMAZ0O"
