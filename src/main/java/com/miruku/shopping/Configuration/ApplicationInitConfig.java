@@ -66,9 +66,7 @@ public class ApplicationInitConfig {
             }
             else{
                 log.warn("Admin account is existed in Database. USERNAME: admin, PASSWORD: admin");
-
             }
-
         };
     }
 }

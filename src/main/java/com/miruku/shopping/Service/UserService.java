@@ -46,16 +46,20 @@ public class UserService {
         userRoles.add(roleRepository.findByName(RolesEnum.USER.name()));
         newUserCreated.setRoles(userRoles);
         //
-//        return userMapper.toUserResponse(userRepository.save(newUserCreated));
-        return userMapper.toUserResponse(userRepository.save(newUserCreated));
+        UserResponse userResp = userMapper.toUserResponse(userRepository.save(newUserCreated));
+        userResp.setRoles(userRoles);
+        return userResp;
     }
 
     public List<UserResponse> getAllUsers(){
         List<UserResponse> listUserResponse = new ArrayList<>();
         for(User u : userRepository.findAll()){
-            listUserResponse.add(userMapper.toUserResponse(u));
+            UserResponse userResp = userMapper.toUserResponse(u);
+            userResp.setRoles(u.getRoles());
+            listUserResponse.add(userResp);
         }
         return listUserResponse;
+//        return userRepository.findAll();
     }
 
     public UserResponse getUser(String id){

@@ -67,7 +67,7 @@ public class AuthenticationService {
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(3600, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("roles", buildRoles(user))
+                .claim("scope", buildRoles(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

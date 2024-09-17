@@ -1,7 +1,10 @@
 package com.miruku.shopping.Configuration;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.XSlf4j;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +29,8 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_POST_ENDPOINTS = {"/users"};
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
 
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
@@ -41,11 +46,11 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
                         .requestMatchers(
-                                "/api/users",
-                                "/api/users/**",
+//                                "/api/users",
+//                                "/api/users/**",
                                 "/api/auths/**"
                                 ).permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/users").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("USER")
                         .anyRequest()
                         .authenticated()
         );
@@ -53,7 +58,7 @@ public class SecurityConfig {
         httpSecurity.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->
                 httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer ->
                                 jwtConfigurer.decoder(jwtDecoder())
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                        .jwtAuthenticationConverter(customJwtGrantedAuthoritiesConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
@@ -63,9 +68,16 @@ public class SecurityConfig {
     }
 
     @Bean
+    CustomJwtGrantedAuthoritiesConverter customJwtGrantedAuthoritiesConverter(){
+        return new CustomJwtGrantedAuthoritiesConverter();
+    }
+
+    @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(){
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        log.warn(jwtGrantedAuthoritiesConverter.toString());
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
