@@ -5,6 +5,7 @@ import lombok.extern.slf4j.XSlf4j;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,14 +32,8 @@ public class SecurityConfig {
     private final String[] PUBLIC_POST_ENDPOINTS = {"/users"};
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
-
-    @Value("${jwt.signerKey}")
-    private String SIGNER_KEY;
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder(10);
-    }
+//    @Autowired
+//    private CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(@NotNull HttpSecurity httpSecurity) throws Exception {
@@ -46,18 +41,18 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
                         .requestMatchers(
-//                                "/api/users",
+                                "/api/users",
 //                                "/api/users/**",
                                 "/api/auths/**"
                                 ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()
         );
 
         httpSecurity.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->
                 httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer ->
-                                jwtConfigurer.decoder(jwtDecoder())
+                                jwtConfigurer.decoder(customJwtDecoder())
                                         .jwtAuthenticationConverter(customJwtGrantedAuthoritiesConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
@@ -73,6 +68,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    CustomJwtDecoder customJwtDecoder(){
+        return new CustomJwtDecoder();
+    }
+
+    @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(){
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
@@ -85,11 +85,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtDecoder jwtDecoder(){
-        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder(10);
     }
+
+//    @Bean
+//    JwtDecoder jwtDecoder(){
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
+//        return NimbusJwtDecoder
+//                .withSecretKey(secretKeySpec)
+//                .macAlgorithm(MacAlgorithm.HS512)
+//                .build();
+//    }
 }

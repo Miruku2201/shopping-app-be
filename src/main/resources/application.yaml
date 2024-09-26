@@ -3,6 +3,8 @@ server:
   port: 8081
   servlet:
     context-path: "/shopping"
+  error:
+    include-stacktrace: never
 spring:
   application:
     name: shopping
@@ -17,3 +19,18 @@ spring:
 
 jwt:
   signerKey: "8tT3Q7fEC1EzBFHyIY43ihghzzA/6M5H0XZ3NLcgXbgo+Cgvs0rCa5KIz5BMAZ0O"
+
+time:
+  expiry:
+    accessToken: 3600 # in second
+    refreshToken: 36000 # in
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: ERROR # Giảm mức log của Spring Security để không in ra terminal những log không cần thiết
+    com.miruku.shopping: DEBUG # Cấu hình mức log cho các class trong package của bạn
+    org.springframework.web.servlet.DispatcherServlet: ERROR
+
+
+

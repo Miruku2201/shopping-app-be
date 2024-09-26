@@ -6,6 +6,8 @@ import com.miruku.shopping.dto.Response.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -22,9 +24,11 @@ import java.io.IOException;
 * nhưng họ lại không cung cấp hoặc cung cấp token không hợp lệ.
 * */
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
         response.setStatus(errorCode.getHttpStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
@@ -34,7 +38,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-        response.flushBuffer();
+        try{
+            response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+            response.flushBuffer();
+        }
+        catch(IOException e){
+            log.error("Error writing response");
+        }
+
     }
 }

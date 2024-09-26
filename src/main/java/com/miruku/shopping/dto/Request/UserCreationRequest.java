@@ -1,5 +1,6 @@
 package com.miruku.shopping.dto.Request;
 
+import com.miruku.shopping.Validation.Constraint.DobConstraint;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -22,5 +23,7 @@ public class UserCreationRequest {
 
     // Thông tin cá nhân người dùng.
     private String name;
+
+    @DobConstraint(min = 13, message = "INVALID_DOB")
     private LocalDate dob;
 }
