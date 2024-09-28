@@ -46,16 +46,16 @@ public class GlobalExceptionHandle {
     public ResponseEntity<ApiResponse<?>> handlingMethodNotValidException(@NotNull MethodArgumentNotValidException exception){
         // get the message is marked in validated annotation.
         String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
-        ErrorCode errorCode;
+        AuthenticateErrorCode errorCode;
         Map<String, Object> attributes = null;
         try{
-            errorCode = ErrorCode.valueOf(enumKey);
+            errorCode = AuthenticateErrorCode.valueOf(enumKey);
             var constraintViolation = exception.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
             log.info(attributes.toString());
         }
         catch(IllegalArgumentException e){
-            errorCode = ErrorCode.INVALID_MESSAGE;
+            errorCode = AuthenticateErrorCode.INVALID_MESSAGE;
         }
 
         ApiResponse<?> apiResponse = ApiResponse.builder()
@@ -73,7 +73,7 @@ public class GlobalExceptionHandle {
     // Exception for DB having some problems: drop, not access, timeout, overload resource
     @ExceptionHandler(value = DataAccessResourceFailureException.class)
     public ResponseEntity<ApiResponse<?>> handlingDataAccessResourceFailureException(DataAccessResourceFailureException exception){
-        ErrorCode errorCode = ErrorCode.DISCONNECT_DATABASE;
+        AuthenticateErrorCode errorCode = AuthenticateErrorCode.DISCONNECT_DATABASE;
 
         return ResponseEntity
                 .status(errorCode.getHttpStatusCode())
@@ -98,8 +98,8 @@ public class GlobalExceptionHandle {
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ApiResponse<?>> handlingException(Exception exception){
         ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
-                .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
+                .code(AuthenticateErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
+                .message(AuthenticateErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
                 .build();
         return ResponseEntity.badRequest().body(apiResponse);
     }

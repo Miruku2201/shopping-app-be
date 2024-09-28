@@ -4,12 +4,14 @@ import com.miruku.shopping.Entity.InvalidateToken;
 import com.miruku.shopping.Entity.Role;
 import com.miruku.shopping.Entity.User;
 import com.miruku.shopping.Exception.AppException;
-import com.miruku.shopping.Exception.ErrorCode;
+import com.miruku.shopping.Exception.AuthenticateErrorCode;
+
 import com.miruku.shopping.Repository.InvalidateTokenRepository;
 import com.miruku.shopping.Repository.RoleRepository;
 import com.miruku.shopping.Repository.UserRepository;
 import com.miruku.shopping.dto.Request.AuthenticationRequest;
 import com.miruku.shopping.dto.Request.IntrospectRequest;
+import com.miruku.shopping.dto.Request.LogoutRequest;
 import com.miruku.shopping.dto.Response.AuthenticationResponse;
 import com.miruku.shopping.dto.Response.IntrospectResponse;
 import com.nimbusds.jose.*;
@@ -130,11 +132,11 @@ public class AuthenticationService {
         // check expiry time
         var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         if (!(expiryTime.after(new Date()) && verifiedToken)){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(AuthenticateErrorCode.UNAUTHENTICATED);
         }
 
         if(invalidateTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(AuthenticateErrorCode.UNAUTHENTICATED);
         }
 
         return signedJWT;
@@ -155,12 +157,12 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(@NotNull AuthenticationRequest request) throws JOSEException {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(()-> new AppException(ErrorCode.NOT_EXIST_USERNAME));
+        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(()-> new AppException(AuthenticateErrorCode.NOT_EXIST_USERNAME));
         // match password
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         boolean isAuthenticate = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!isAuthenticate){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(AuthenticateErrorCode.UNAUTHENTICATED);
         }
 
         // Generate token
@@ -183,7 +185,7 @@ public class AuthenticationService {
         invalidateTokenRepository.save(invalidateToken);
 
         // Reset token.
-        User user = userRepository.findByUsername(signedJWT.getJWTClaimsSet().getSubject()).orElseThrow(()-> new AppException(ErrorCode.NOT_EXIST_USERNAME));
+        User user = userRepository.findByUsername(signedJWT.getJWTClaimsSet().getSubject()).orElseThrow(()-> new AppException(AuthenticateErrorCode.NOT_EXIST_USERNAME));
         return AuthenticationResponse.builder()
                 .accessToken(generateToken(user, expiryAccessToken))
                 .refreshToken(generateToken(user, expiryRefreshToken))
@@ -192,4 +194,19 @@ public class AuthenticationService {
 
     }
 
+    public Void logout(@NotNull LogoutRequest request) throws ParseException, JOSEException {
+        try{
+            SignedJWT signToken = verifyToken(request.getToken());
+            InvalidateToken invalidateToken = InvalidateToken.builder()
+                    .tokenId(signToken.getJWTClaimsSet().getJWTID())
+                    .invalidTime(LocalDate.now())
+                    .build();
+
+            invalidateTokenRepository.save(invalidateToken);
+        }
+        catch(AppException ex) {
+            log.warn("Token is expired");
+        }
+        return null;
+    }
 }

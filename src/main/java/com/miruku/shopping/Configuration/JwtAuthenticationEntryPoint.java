@@ -1,7 +1,7 @@
 package com.miruku.shopping.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.miruku.shopping.Exception.ErrorCode;
+import com.miruku.shopping.Exception.AuthenticateErrorCode;
 import com.miruku.shopping.dto.Response.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+        AuthenticateErrorCode errorCode = AuthenticateErrorCode.UNAUTHENTICATED;
         response.setStatus(errorCode.getHttpStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 

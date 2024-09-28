@@ -4,7 +4,7 @@ import com.miruku.shopping.Entity.Role;
 import com.miruku.shopping.Entity.User;
 import com.miruku.shopping.Enum.RolesEnum;
 import com.miruku.shopping.Exception.AppException;
-import com.miruku.shopping.Exception.ErrorCode;
+import com.miruku.shopping.Exception.AuthenticateErrorCode;
 import com.miruku.shopping.Mapper.UserMapper;
 import com.miruku.shopping.Repository.RoleRepository;
 import com.miruku.shopping.Repository.UserRepository;
@@ -13,6 +13,7 @@ import com.miruku.shopping.dto.Request.UserUpdateRequest;
 import com.miruku.shopping.dto.Response.UserResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class UserService {
 
     public UserResponse createUser(@NotNull UserCreationRequest request){
         if(userRepository.existsByUsername(request.getUsername())){
-            throw new AppException(ErrorCode.EXISTED_USERNAME);
+            throw new AppException(AuthenticateErrorCode.EXISTED_USERNAME);
         }
         User newUserCreated = userMapper.toUser(request);
 
@@ -62,13 +63,14 @@ public class UserService {
 //        return userRepository.findAll();
     }
 
+    @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getUser(String id){
-        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.EXISTED_USERNAME));
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(AuthenticateErrorCode.EXISTED_USERNAME));
         return userMapper.toUserResponse(user);
     }
 
     public UserResponse updateUser(String id,UserUpdateRequest request){
-        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.EXISTED_USERNAME));
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(AuthenticateErrorCode.EXISTED_USERNAME));
         userMapper.toUserUpdate(user, request);
 
         return userMapper.toUserResponse(userRepository.save(user));

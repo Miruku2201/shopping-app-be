@@ -3,6 +3,7 @@ package com.miruku.shopping.Controller;
 import com.miruku.shopping.Service.AuthenticationService;
 import com.miruku.shopping.dto.Request.AuthenticationRequest;
 import com.miruku.shopping.dto.Request.IntrospectRequest;
+import com.miruku.shopping.dto.Request.LogoutRequest;
 import com.miruku.shopping.dto.Response.ApiResponse;
 import com.miruku.shopping.dto.Response.AuthenticationResponse;
 import com.miruku.shopping.dto.Response.IntrospectResponse;
@@ -39,6 +40,13 @@ public class AuthenticationController {
     ApiResponse<AuthenticationResponse> refresh(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(authenticationService.refreshToken(request))
+                .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 }
