@@ -94,13 +94,13 @@ public class GlobalExceptionHandle {
                         .build());
     }
 
-    // Remain Exception
-    @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ApiResponse<?>> handlingException(Exception exception){
-        ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(AuthenticateErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
-                .message(AuthenticateErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
-                .build();
-        return ResponseEntity.badRequest().body(apiResponse);
-    }
+//    // Remain Exception
+//    @ExceptionHandler(value = Exception.class)
+//    public ResponseEntity<ApiResponse<?>> handlingException(Exception exception){
+//        ApiResponse<?> apiResponse = ApiResponse.builder()
+//                .code(AuthenticateErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
+//                .message(AuthenticateErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
+//                .build();
+//        return ResponseEntity.badRequest().body(apiResponse);
+//    }
 }

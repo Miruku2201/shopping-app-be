@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatusCode;
 @NoArgsConstructor
 public enum CategoryErrorCode implements ErrorCode {
     CATEGORY_NAME_EXISTED(2001, "Category's name is existed", HttpStatus.BAD_REQUEST),
+    NOT_EXISTED_CATEGORY(2002, "Category is not existed", HttpStatus.BAD_REQUEST),
     ;
     private int code;
     private String message;
