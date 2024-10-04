@@ -3,6 +3,7 @@ package com.miruku.shopping.Controller;
 
 import com.miruku.shopping.Entity.Category;
 import com.miruku.shopping.Service.CategoryService;
+import com.miruku.shopping.dto.Request.CategoryAddingRequest;
 import com.miruku.shopping.dto.Request.CategoryCreationRequest;
 import com.miruku.shopping.dto.Request.CategoryUpdateRequest;
 import com.miruku.shopping.dto.Response.ApiResponse;
@@ -27,8 +28,8 @@ public class CategoryController {
     }
     // Get All category
     @GetMapping
-    ApiResponse<List<CategoryResponse>> getAllCategories(){
-        return ApiResponse.<List<CategoryResponse>>builder()
+    ApiResponse<List<Category>> getAllCategories(){
+        return ApiResponse.<List<Category>>builder()
                 .result(categoryService.getAllCategories())
                 .build();
     }
@@ -53,6 +54,14 @@ public class CategoryController {
     ApiResponse<Void> deleteCategoryById(@PathVariable("id") Long id){
         return ApiResponse.<Void>builder()
                 .result(categoryService.deleteCategoryById(id))
+                .build();
+    }
+
+    // add 1 Cate -> Cate
+    @PutMapping("/add/{id}")
+    ApiResponse<CategoryResponse> addCategoryToOne(@PathVariable("id") Long addID, @RequestBody CategoryAddingRequest request){
+        return ApiResponse.<CategoryResponse>builder()
+                .result(categoryService.addCategoryToOne(addID, request))
                 .build();
     }
 }

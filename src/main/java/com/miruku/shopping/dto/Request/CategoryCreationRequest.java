@@ -24,8 +24,8 @@ public class CategoryCreationRequest {
     private LocalDate updateDate;
 
     @Builder.Default
-    private Category parentCategory = null;
+    private String parentCategory = null;
 
     @Builder.Default
-    private List<Category> subCategories = new ArrayList<>();
+    private List<String> subCategories = new ArrayList<>();
 }
